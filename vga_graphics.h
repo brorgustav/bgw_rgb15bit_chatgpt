@@ -29,18 +29,20 @@
 enum vga_pins {
   HSYNC = 16,
   VSYNC = 17,
-  RGB_BASE_PIN = 0  // Use GPIO0 as the start for Red, then Green and Blue follow.
-}
-// Converts a 15-bit RGB (RGB555) pixel into a 32-bit word with bits arranged as follows:
-//   - Red (bits 10-14 of pixel)  → bits [4:0] (for GPIO0–4)
-//   - Green (bits 5-9)  → bits [10:6] (for GPIO6–10)
-//   - Blue (bits 0-4)   → bits [15:11] (for GPIO11–15)
-// This assumes that the unused GPIO5 remains untouched.
+};
 uint32_t map_rgb555_to_gpio_bits(uint16_t rgb) {
-    uint32_t mapped = 0;
-    mapped |= ((rgb >> 10) & 0x1F) << 0;   // red into bits 0-4 (GPIO0-4)
-    mapped |= ((rgb >> 5)  & 0x1F) << 6;    // green into bits 6-10 (GPIO6-10)\n    mapped |= (rgb & 0x1F)        << 11; // blue into bits 11-15 (GPIO11-15)
-    return mapped;
+  uint32_t out = 0;
+
+  // Red (bits 10-14) → GPIO0–4
+  out |= ((rgb >> 10) & 0x1F) << 0;   // GPIO0–4
+
+  // Green (bits 5–9) → GPIO6–10
+  out |= ((rgb >> 5) & 0x1F) << 6;    // GPIO6–10
+
+  // Blue (bits 0–4) → GPIO11–15
+  out |= (rgb & 0x1F) << 11;          // GPIO11–15
+
+  return out;
 }
 // We can only produce 8 (3-bit) colors, so let's give them readable names - usable in main()
 enum colors {BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE} ;
